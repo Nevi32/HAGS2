@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAGS - Hass Avocado Growers</title>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #60ad5e;
+            --primary-dark: #005005;
+            --secondary: #ffd54f;
+            --text-light: #ffffff;
+            --text-dark: #212121;
+            --background: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--background);
+            overflow-x: hidden;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            animation: spin 2s linear infinite;
+        }
+        
+        .loader:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23ffd54f" d="M50,10 C70,10 90,30 90,50 C90,70 70,90 50,90 C30,90 10,70 10,50 C10,30 30,10 50,10 Z M50,20 C35,20 20,35 20,50 C20,65 35,80 50,80 C65,80 80,65 80,50 C80,35 65,20 50,20 Z"/></svg>');
+            background-size: contain;
+        }
+        
+        /* Header */
+        header {
+            background-color: var(--primary);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-light);
+            text-decoration: none;
+        }
+        
+        .logo img {
+            height: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--secondary);
+            transition: width 0.3s ease;
+        }
+        
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/api/placeholder/1200/800') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-align: center;
+            padding-top: 80px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            animation: fadeIn 2s ease;
+        }
+        
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: var(--text-dark);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            background-color: #ffec9d;
+        }
+        
+        /* About Section */
+        .about {
+            padding: 5rem 2rem;
+            background-color: #ffffff;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            font-size: 2.5rem;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 3px;
+            background-color: var(--secondary);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .about-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+        
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .about-text h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        
+        .about-text p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .about-image {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .about-image img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.5s ease;
+        }
+        
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Products Section */
+        .products {
+            padding: 5rem 2rem;
+            background-color: #f9f9f9;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .product-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-info h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-info p {
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .product-price {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .product-btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .product-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Community Impact */
+        .community {
+            padding: 5rem 2rem;
+            background-color: #ffffff;
+        }
+        
+        .community-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 3rem auto;
+        }
+        
+        .gallery-item {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: var(--text-light);
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+        
+        /* Founder Section */
+        .founder {
+            padding: 5rem 2rem;
+            background-color: #f9f9f9;
+        }
+        
+        .founder-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+        
+        .founder-image {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .founder-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .founder-info {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .founder-info h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        
+        .founder-info p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: var(--text-light);
+            border-radius: 50%;
+            text-decoration: none;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-5px);
+            background-color: var(--primary-dark);
+        }
+        
+        /* Certifications */
+        .certifications {
+            padding: 5rem 2rem;
+            background-color: #ffffff;
+        }
+        
+        .cert-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .cert-item {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            width: 250px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .cert-item:hover {
+            transform: translateY(-10px);
+        }
+        
+        .cert-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .cert-item h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Contact Section */
+        .contact {
+            padding: 5rem 2rem;
+            background-color: #f9f9f9;
+        }
+        
+        .contact-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+        
+        .contact-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .contact-info h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+        
+        .contact-info p {
+            margin-bottom: 1rem;
+        }
+        
+        .contact-form {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary);
+            color: var(--text-light);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            padding: 3rem 2rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+        
+        .footer-col {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-col h4 {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .footer-col h4:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 50px;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-col ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-col ul li a:hover {
+            color: var(--secondary);
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: var(--text-light);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(100px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .scroll-top.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .scroll-top:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Animations for sections */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--primary);
+                flex-direction: column;
+                padding: 1rem 0;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                gap: 0;
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            nav ul li {
+                width: 100%;
+            }
+            
+            nav ul li a {
+                display: block;
+                padding: 1rem 2rem;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .about-content, .founder-content, .contact-content {
+                flex-direction: column;
+            }
+            
+            .founder-image {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+    
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img src="/api/placeholder/50/50" alt="HAGS Logo">
+                <h1>HAGS</h1>
+            </a>
+            <button class="mobile-menu-btn">
+                ☰
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#products">Our Products</a></li>
+                    <li><a href="#community">Community Impact</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h2>Growing Communities Through Sustainable Agriculture</h2>
+            <p>At Hass Avocado Growers (HAGS), we're committed to helping rural communities thrive through diversified agricultural practices and premium quality seedlings.</p>
+            <a href="#products" class="cta-btn">Explore Our Products</a>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="about">
+        <h2 class="section-title fade-in">Our Story</h2>
+        <div class="about-content">
+            <div class="about-text fade-in">
+                <h3>Growing Together</h3>
+                <p>Founded by agricultural expert Joseph Kungu Ndungu, Hass Avocado Growers (HAGS) was born from a vision to transform rural communities through sustainable agricultural practices.</p>
+                <p>We specialize in cultivating premium Hass avocado seedlings, working directly with community groups to diversify their agricultural output and create sustainable income streams.</p>
+                <p>Our approach is not just about selling seedlings; it's about building partnerships, providing knowledge, and supporting the entire growth journey from planting to harvest.</p>
+            </div>
+            <div class="about-image fade-in">
+                <img src="/api/placeholder/600/400" alt="Avocado farm">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <h2 class="section-title fade-in">Our Products</h2>
+        <div class="products-grid">
+            <div class="product-card fade-in">
+                <div class="product-image">
+                    <img src="/api/placeholder/400/300" alt="Hass Avocado Seedlings">
+                </div>
+                <div class="product-info">
+                    <h3>Hass Avocado Seedlings</h3>
+                    <p>Premium quality, disease-resistant seedlings that yield rich, creamy fruits with high market value.</p>
+                    <div class="product-price">KSh 300 per seedling</div>
+                    <a href="#contact" class="product-btn">Order Now</a>
+                </div>
+            </div>
+            
+            <div class="product-card fade-in">
+                <div class="product-image">
+                    <img src="/api/placeholder/400/300" alt="Grafted Mango Seedlings">
+                </div>
+                <div class="product-info">
+                    <h3>Grafted Mango Seedlings</h3>
+                    <p>Various mango varieties grafted for optimal fruit production and disease resistance.</p>
+                    <div class="product-price">KSh 250 per seedling</div>
+                    <a href="#contact" class="product-btn">Order Now</a>
+                </div>
+            </div>
+            
+            <div class="product-card fade-in">
+                <div class="product-image">
+                    <img src="/api/placeholder/400/300" alt="Macadamia Seedlings">
+                </div>
+                <div class="product-info">
+                    <h3>Macadamia Seedlings</h3>
+                    <p>High-yield, drought-resistant macadamia seedlings perfect for diversification.</p>
+                    <div class="product-price">KSh 350 per seedling</div>
+                    <a href="#contact" class="product-btn">Order Now</a>
+                </div>
+            </div>
+            
+            <div class="product-card fade-in">
+                <div class="product-image">
+                    <img src="/api/placeholder/400/300" alt="Agricultural Training">
+                </div>
+                <div class="product-info">
+                    <h3>Agricultural Training</h3>
+                    <p>Comprehensive training programs for community groups on sustainable farming practices.</p>
+                    <div class="product-price">Contact for pricing</div>
+                    <a href="#contact" class="product-btn">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Community Impact Section -->
+    <section id="community" class="community">
+        <h2 class="section-title fade-in">Our Impact</h2>
+        <div class="about-text fade-in" style="text-align: center; max-width: 800px; margin: 0 auto;">
+            <p>At HAGS, we believe in the power of agriculture to transform communities. Through partnerships with rural community groups, we've helped diversify agricultural practices, increase incomes, and build sustainable livelihoods.</p>
+        </div>
+        <div class="community-gallery">
+            <div class="gallery-item fade-in">
+                <img src="/api/placeholder/400/400" alt="Community training session">
+                <div class="gallery-caption">
+                    <h4>Knowledge Sharing</h4>
+                    <p>Training sessions with community members</p>
+                </div>
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="/api/placeholder/400/400" alt="Avocado harvest">
+                <div class="gallery-caption">
+                    <h4>Abundant Harvests</h4>
+                    <p>First avocado harvest from our seedlings</p>
+                </div>
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="/api/placeholder/400/400" alt="Women's group with seedlings">
+                <div class="gallery-caption">
+                    <h4>Women's Empowerment</h4>
+                    <p>Women's group receiving seedlings</p>
+                </div>
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="/api/placeholder/400/400" alt="Preparing land for planting">
+                <div class="gallery-caption">
+                    <h4>New Beginnings</h4>
+                    <p>Preparing land for avocado planting</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Founder Section -->
+    <section id="founder" class="founder">
+        <h2 class="section-title fade-in">Meet Our Founder</h2>
+        <div class="founder-content">
+            <div class="founder-image fade-in">
+                <img src="/api/placeholder/500/500" alt="Joseph Kungu Ndungu">
+            </div>
+            <div class="founder-info fade-in">
+                <h3>Joseph Kungu Ndungu</h3>
+                <p>With over 15 years of experience in agricultural science and community development, Joseph founded HAGS with a vision to transform rural agriculture through sustainable practices and high-value crops.</p>
+                <p>A certified agricultural expert specializing in fruit tree cultivation, Joseph has worked with numerous community groups across the country, sharing his knowledge and passion for sustainable farming.</p>
+                <p>His approach combines traditional wisdom with modern agricultural techniques, ensuring that HAGS seedlings are not only of the highest quality but also suited to local growing conditions.</p>
+                <div class="social-links">
+                    <a href="https://wa.me/+254700000000" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.6 6.3C16.2 4.9 14.2 4 12.1 4C7.9 4 4.6 7.3 4.6 11.5C4.6 13.2 5.1 14.9 6 16.3L4.5 20L8.3 18.5C9.7 19.3 10.9 19.7 12.2 19.7C16.4 19.7 19.7 16.4 19.7 12.2C19.6 10 18.8 8 17.6 6.3ZM12.1 18.2C11 18.2 9.9 17.8 8.9 17.1L8.7 17L6.5 17.9L7.4 15.8L7.2 15.6C6.4 14.5 6 13.3 6 12C6 8.1 8.7 5 12.2 5C14 5 15.7 5.8 16.9 7C18.1 8.2 18.9 9.9 18.9 11.7C18.8 15.6 16.1 18.2 12.1 18.2ZM15.2 13.4C15 13.3 14.1 12.9 14 12.8C13.8 12.7 13.7 12.7 13.5 12.9C13.4 13.1 13 13.5 12.9 13.6C12.8 13.8 12.6 13.8 12.4 13.7C11.6 13.3 11 13 10.5 12.3C10.3 12 10.6 12 10.9 11.4C11 11.3 10.9 11.2 10.9 11.1C10.8 11 10.5 10.1 10.3 9.7C10.1 9.2 10 9.3 9.8 9.3C9.7 9.3 9.6 9.3 9.4 9.3C9.2 9.3 9 9.4 8.8 9.6C8.6 9.8 8.2 10.2 8.2 11.1C8.2 12 8.8 12.9 8.9 13C9 13.2 10.5 15.4 12.7 16.1C14.1 16.6 14.6 16.6 15.2 16.5C15.6 16.4 16.3 16.1 16.5 15.6C16.7 15.1 16.7 14.7 16.6 14.6C16.5 14.5 16.4 14.5 16.2 14.4C16 14.5 15.4 13.5 15.2 13.4Z" fill="white"/>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com/hassavocadogrowers" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="https://instagram.com/hassavocadogrowers" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H16C18.2091 20 20 18.2091 20 16V8C20 5.79086 18.2091 4 16 4Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16.5 7.5V7.51" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Certifications Section -->
+    <section id="certifications" class="certifications">
+        <h2 class="section-title fade-in">Our Certifications</h2>
+        <div class="cert-container">
+            <div class="cert-item fade-in">
+                <div class="cert-icon">🥑</div>
+                <h4>Agricultural Certification</h4>
+                <p>Certified by the National Agricultural Board for quality seedling production</p>
+            </div>
+            <div class="cert-item fade-in">
+                <div class="cert-icon">🌱</div>
+                <h4>Organic Certification</h4>
+                <p>All seedlings grown according to organic farming standards</p>
+            </div>
+            <div class="cert-item fade-in">
+                <div class="cert-icon">📝</div>
+                <h4>Quality Assurance</h4>
+                <p>Rigorous quality control processes to ensure seedling viability</p>
+            </div>
+            <div class="cert-item fade-in">
+                <div class="cert-icon">🧪</div>
+                <h4>Research Partner</h4>
+                <p>Official research partner with the Agricultural Research Institute</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2 class="section-title fade-in">Get In Touch</h2>
+        <div class="contact-content">
+            <div class="contact-info fade-in">
+                <h3>Contact Information</h3>
+                <p><strong>Address:</strong> Plot 123, Agricultural Zone, Nairobi, Kenya</p>
+                <p><strong>Phone:</strong> +254 700 000 000</p>
+                <p><strong>Email:</strong> info@hassavocadogrowers.co.ke</p>
+                <p><strong>Business Hours:</strong> Monday - Friday: 8am - 5pm, Saturday: 9am - 1pm</p>
+                <div class="social-links">
+                    <a href="https://wa.me/+254700000000" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.6 6.3C16.2 4.9 14.2 4 12.1 4C7.9 4 4.6 7.3 4.6 11.5C4.6 13.2 5.1 14.9 6 16.3L4.5 20L8.3 18.5C9.7 19.3 10.9 19.7 12.2 19.7C16.4 19.7 19.7 16.4 19.7 12.2C19.6 10 18.8 8 17.6 6.3ZM12.1 18.2C11 18.2 9.9 17.8 8.9 17.1L8.7 17L6.5 17.9L7.4 15.8L7.2 15.6C6.4 14.5 6 13.3 6 12C6 8.1 8.7 5 12.2 5C14 5 15.7 5.8 16.9 7C18.1 8.2 18.9 9.9 18.9 11.7C18.8 15.6 16.1 18.2 12.1 18.2ZM15.2 13.4C15 13.3 14.1 12.9 14 12.8C13.8 12.7 13.7 12.7 13.5 12.9C13.4 13.1 13 13.5 12.9 13.6C12.8 13.8 12.6 13.8 12.4 13.7C11.6 13.3 11 13 10.5 12.3C10.3 12 10.6 12 10.9 11.4C11 11.3 10.9 11.2 10.9 11.1C10.8 11 10.5 10.1 10.3 9.7C10.1 9.2 10 9.3 9.8 9.3C9.7 9.3 9.6 9.3 9.4 9.3C9.2 9.3 9 9.4 8.8 9.6C8.6 9.8 8.2 10.2 8.2 11.1C8.2 12 8.8 12.9 8.9 13C9 13.2 10.5 15.4 12.7 16.1C14.1 16.6 14.6 16.6 15.2 16.5C15.6 16.4 16.3 16.1 16.5 15.6C16.7 15.1 16.7 14.7 16.6 14.6C16.5 14.5 16.4 14.5 16.2 14.4C16 14.5 15.4 13.5 15.2 13.4Z" fill="white"/>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com/hassavocadogrowers" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="https://instagram.com/hassavocadogrowers" class="social-link" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H16C18.2091 20 20 18.2091 20 16V8C20 5.79086 18.2091 4 16 4Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16.5 7.5V7.51" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="contact-form fade-in">
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Your Message</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Hass Avocado Growers</h4>
+                <p>Growing communities through sustainable agriculture since 2018.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#community">Community Impact</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <ul>
+                    <li><a href="#products">Hass Avocado Seedlings</a></li>
+                    <li><a href="#products">Mango Seedlings</a></li>
+                    <li><a href="#products">Macadamia Seedlings</a></li>
+                    <li><a href="#products">Agricultural Training</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Connect With Us</h4>
+                <ul>
+                    <li><a href="https://wa.me/+254700000000">WhatsApp</a></li>
+                    <li><a href="https://facebook.com/hassavocadogrowers">Facebook</a></li>
+                    <li><a href="https://instagram.com/hassavocadogrowers">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Hass Avocado Growers. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Scroll to top button -->
+    <a href="#" class="scroll-top">↑</a>
+    
+    <!-- JavaScript -->
+    <script>
+        // Loader Animation
+        window.addEventListener('load', function() {
+            const loader = document.querySelector('.loader-container');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 2000);
+        });
+        
+        // Mobile Menu Toggle
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navMenu = document.querySelector('nav ul');
+        
+        menuBtn.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+        
+        // Scroll to top button visibility
+        const scrollTopBtn = document.querySelector('.scroll-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('active');
+            } else {
+                scrollTopBtn.classList.remove('active');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Intersection Observer for scroll animations
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        fadeElements.forEach(element => {
+            observer.observe(element);
+        });
+        
+        // Form submission
+        const contactForm = document.getElementById('contact-form');
+        
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would normally send the form data to a server
+            // For demonstration, we'll just show an alert
+            
+            const name = document.getElementById('name').value;
+            alert(`Thank you ${name} for your message! We'll get back to you soon.`);
+            contactForm.reset();
+        });
+        
+        // Image hover effects
+        const productCards = document.querySelectorAll('.product-card');
+        
+        productCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px)';
+                card.style.boxShadow = '0 15px 30px rgba(0,0,0,0.2)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+            });
+        });
+        
+        // WhatsApp direct link
+        const whatsappLinks = document.querySelectorAll('a[href^="https://wa.me/"]');
+        
+        whatsappLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // You could add a custom message here if needed
+                const message = "Hello, I'm interested in HAGS avocado seedlings!";
+                const encodedMessage = encodeURIComponent(message);
+                this.href = `https://wa.me/+254700000000?text=${encodedMessage}`;
+            });
+        });
+    </script>
+</body>
+</html>
