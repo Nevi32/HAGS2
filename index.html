@@ -144,6 +144,72 @@
         .nav-links a:hover::after {
             width: 100%;
         }
+
+        /* Hero Section with Slider */
+.hero {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    padding-top: 70px;
+}
+
+.hero-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: opacity 2s ease-in-out;
+}
+
+.slide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.slide:nth-child(1) {
+    background-image: url('/api/placeholder/1200/800?text=Avocado+Farm');
+}
+
+.slide:nth-child(2) {
+    background-image: url('/api/placeholder/1200/800?text=Avocado+Trees');
+}
+
+.slide:nth-child(3) {
+    background-image: url('/api/placeholder/1200/800?text=Fresh+Avocados');
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.hero-content {
+    max-width: 700px;
+    color: var(--text-light);
+    z-index: 2;
+    position: relative;
+}
+
+/* Keep existing hero-content styles */
         
         .hero {
             height: 100vh;
@@ -1018,18 +1084,23 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Hass Avocado Growers</h1>
-                <h2>Growing Green, Growing Communities</h2>
-                <p>HAGS specializes in premium Hass avocado seedlings and agricultural expertise, helping rural communities diversify their farming practices and achieve sustainable growth.</p>
-                <a href="#products" class="btn">Explore Our Products</a>
-                <a href="#contact" class="btn btn-secondary">Contact Us</a>
-            </div>
+  <!-- Hero Section with Image Slider -->
+<section class="hero" id="home">
+    <div class="hero-slider">
+        <div class="slide active"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <h1>Hass Avocado Growers</h1>
+            <h2>Growing Green, Growing Communities</h2>
+            <p>HAGS specializes in premium Hass avocado seedlings and agricultural expertise, helping rural communities diversify their farming practices and achieve sustainable growth.</p>
+            <a href="#products" class="btn">Explore Our Products</a>
+            <a href="#contact" class="btn btn-secondary">Contact Us</a>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Our Story Section -->
     <section class="section story" id="story">
@@ -1316,6 +1387,43 @@
 
     <!-- JavaScript -->
     <script>
+
+        // Hero Image Slider
+function initHeroSlider() {
+    const slides = document.querySelectorAll('.hero-slider .slide');
+    let currentSlide = 0;
+    
+    // Show first slide initially
+    slides[0].classList.add('active');
+    
+    // Function to change slide
+    function nextSlide() {
+        // Remove active class from current slide
+        slides[currentSlide].classList.remove('active');
+        
+        // Move to next slide or back to first
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        // Add active class to new current slide
+        slides[currentSlide].classList.add('active');
+    }
+    
+    // Change slide every 5 seconds
+    setInterval(nextSlide, 5000);
+}
+
+// Add this to your existing window load event
+window.addEventListener('load', function() {
+    // Your existing loader code
+    const loader = document.querySelector('.loader');
+    setTimeout(function() {
+        loader.classList.add('hidden');
+    }, 1500);
+    
+    // Initialize hero slider
+    initHeroSlider();
+});
+        
         // Loader
         window.addEventListener('load', function() {
             const loader = document.querySelector('.loader');
